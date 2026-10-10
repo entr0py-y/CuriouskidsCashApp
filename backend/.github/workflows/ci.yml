@@ -1,0 +1,71 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: skyjumpers
+          POSTGRES_PASSWORD: skyjumpers_pass
+          POSTGRES_DB: skyjumpers_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        cd backend
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Lint with Ruff
+      run: |
+        cd backend
+        ruff check .
+        
+    - name: Type check with Mypy
+      run: |
+        cd backend
+        mypy . --ignore-missing-imports
+
+    - name: Check missing migrations
+      run: |
+        cd backend
+        export DJANGO_ENV=test
+        export DATABASE_URL=postgres://skyjumpers:skyjumpers_pass@localhost:5432/skyjumpers_db
+        export REDIS_URL=redis://localhost:6379/0
+        python manage.py makemigrations --check --dry-run
+        
+    - name: Run Tests
+      run: |
+        cd backend
+        export DJANGO_ENV=test
+        export DATABASE_URL=postgres://skyjumpers:skyjumpers_pass@localhost:5432/skyjumpers_db
+        export REDIS_URL=redis://localhost:6379/0
+        pytest

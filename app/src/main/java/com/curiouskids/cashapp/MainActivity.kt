@@ -19,7 +19,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.curiouskids.cashapp.ui.UsbSerialScreen
 import com.curiouskids.cashapp.ui.UsbViewModel
-import com.curiouskids.cashapp.ui.theme.CuriousKidsCashAppTheme
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.curiouskids.cashapp.core.designsystem.theme.SkyjumpersTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -49,9 +52,16 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val mainViewModel: MainViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        splashScreen.setKeepOnScreenCondition {
+            mainViewModel.appState.value is AppState.Loading
+        }
 
         val filter = IntentFilter(ACTION_USB_PERMISSION)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -61,13 +71,19 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            CuriousKidsCashAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    UsbSerialScreen(
-                        viewModel = viewModel,
-                        onRequestPermission = { device -> requestUsbPermission(device) },
-                        modifier = Modifier.padding(innerPadding)
-                    )
+            val appState by mainViewModel.appState.collectAsState()
+            
+            if (appState is AppState.Ready) {
+                val startDest = (appState as AppState.Ready).startDestination
+                SkyjumpersTheme {
+                    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                        SkyjumpersNavHost(
+                            usbViewModel = viewModel,
+                            onRequestUsbPermission = { device -> requestUsbPermission(device) },
+                            startDestination = startDest,
+                            modifier = Modifier.padding(innerPadding)
+                        )
+                    }
                 }
             }
         }

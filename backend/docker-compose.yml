@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: skyjumpers
+      POSTGRES_PASSWORD: skyjumpers_pass
+      POSTGRES_DB: skyjumpers_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U skyjumpers -d skyjumpers_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_ENV=local
+      - DJANGO_ALLOWED_HOSTS=127.0.0.1,localhost,10.0.2.2,web
+      - DATABASE_URL=postgres://skyjumpers:skyjumpers_pass@db:5432/skyjumpers_db
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/1
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  celery_worker:
+    build: .
+    command: celery -A config worker -l INFO
+    volumes:
+      - .:/app
+    environment:
+      - DJANGO_ENV=local
+      - DJANGO_ALLOWED_HOSTS=127.0.0.1,localhost,10.0.2.2,web
+      - DATABASE_URL=postgres://skyjumpers:skyjumpers_pass@db:5432/skyjumpers_db
+      - CELERY_BROKER_URL=redis://redis:6379/1
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  celery_beat:
+    build: .
+    command: celery -A config beat -l INFO
+    volumes:
+      - .:/app
+    environment:
+      - DJANGO_ENV=local
+      - DJANGO_ALLOWED_HOSTS=127.0.0.1,localhost,10.0.2.2,web
+      - DATABASE_URL=postgres://skyjumpers:skyjumpers_pass@db:5432/skyjumpers_db
+      - CELERY_BROKER_URL=redis://redis:6379/1
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    environment:
+      MP_MAX_MESSAGES: 5000
+
+volumes:
+  postgres_data:
