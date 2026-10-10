@@ -12,6 +12,11 @@ import com.curiouskids.cashapp.feature.home.ui.HomeViewModel
 import com.curiouskids.cashapp.feature.home.PlaceholderScreen
 import com.curiouskids.cashapp.feature.profile.ui.ProfileScreen
 import com.curiouskids.cashapp.feature.profile.ui.ProfileViewModel
+import com.curiouskids.cashapp.feature.wallet.ui.WalletScreen
+import com.curiouskids.cashapp.feature.wallet.ui.AddMoneyScreen
+import com.curiouskids.cashapp.feature.wallet.ui.PaymentResultScreen
+import com.curiouskids.cashapp.feature.wallet.ui.TransactionHistoryScreen
+import com.curiouskids.cashapp.feature.wallet.ui.WalletViewModel
 import com.curiouskids.cashapp.ui.UsbSerialScreen
 import com.curiouskids.cashapp.ui.UsbViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -53,11 +58,40 @@ fun SkyjumpersNavHost(
                 onNavigateToProfile = { navController.navigate("profile") }
             )
         }
+        composable("wallet") {
+            val walletViewModel: WalletViewModel = hiltViewModel()
+            WalletScreen(
+                viewModel = walletViewModel,
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToAddMoney = { navController.navigate("wallet_recharge") },
+                onNavigateToHistory = { navController.navigate("wallet_history") }
+            )
+        }
         composable("wallet_recharge") {
-            PlaceholderScreen(onNavigateToKiosk = { navController.navigate("usb_kiosk") })
+            val walletViewModel: WalletViewModel = hiltViewModel()
+            AddMoneyScreen(
+                viewModel = walletViewModel,
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToResult = { navController.navigate("payment_result") }
+            )
+        }
+        composable("payment_result") {
+            val walletViewModel: WalletViewModel = hiltViewModel()
+            PaymentResultScreen(
+                viewModel = walletViewModel,
+                onReturnToWallet = {
+                    navController.navigate("home") {
+                        popUpTo("home") { inclusive = false }
+                    }
+                }
+            )
         }
         composable("wallet_history") {
-            PlaceholderScreen(onNavigateToKiosk = { navController.navigate("usb_kiosk") })
+            val walletViewModel: WalletViewModel = hiltViewModel()
+            TransactionHistoryScreen(
+                viewModel = walletViewModel,
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
         composable("bookings") {
             PlaceholderScreen(onNavigateToKiosk = { navController.navigate("usb_kiosk") })
@@ -85,5 +119,3 @@ fun SkyjumpersNavHost(
         }
     }
 }
-
-

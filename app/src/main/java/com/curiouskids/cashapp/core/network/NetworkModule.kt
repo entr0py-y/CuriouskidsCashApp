@@ -6,6 +6,7 @@ import com.curiouskids.cashapp.feature.auth.data.AuthAuthenticator
 import com.curiouskids.cashapp.feature.auth.data.AuthInterceptor
 import com.curiouskids.cashapp.feature.home.data.HomeApiService
 import com.curiouskids.cashapp.feature.profile.data.ProfileApiService
+import com.curiouskids.cashapp.feature.wallet.data.WalletApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -77,5 +78,11 @@ object NetworkModule {
     @Singleton
     fun provideProfileApi(retrofit: Retrofit): ProfileApiService {
         return retrofit.create(ProfileApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideWalletApi(retrofit: Retrofit): WalletApiService {
+        return retrofit.create(WalletApiService::class.java)
     }
 }

@@ -28,6 +28,7 @@ mockwebserver = "5.4.0"
 playServicesAuthPhone = "18.1.0"
 lifecycleProcess = "2.8.7"
 zxing = "3.5.3"
+razorpayCheckout = "1.6.38"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -73,6 +74,7 @@ androidx-biometric = { group = "androidx.biometric", name = "biometric", version
 mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "mockwebserver" }
 play-services-auth-api-phone = { group = "com.google.android.gms", name = "play-services-auth-api-phone", version.ref = "playServicesAuthPhone" }
 zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxing" }
+razorpay-checkout = { group = "com.razorpay", name = "checkout", version.ref = "razorpayCheckout" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

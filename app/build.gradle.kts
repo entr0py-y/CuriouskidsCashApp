@@ -101,6 +101,7 @@ dependencies {
     implementation(libs.converter.kotlinx.serialization)
     implementation(libs.logging.interceptor)
     implementation(libs.zxing.core)
+    implementation(libs.razorpay.checkout)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
