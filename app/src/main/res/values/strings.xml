@@ -1,3 +1,21 @@
 <resources>
-    <string name="app_name">Curious kids Cash App</string>
+    <string name="app_name">Skyjumpers</string>
+    <string name="welcome_back">Welcome Back</string>
+    <string name="create_account">Create Account</string>
+    <string name="phone_number">Phone Number (10 digits)</string>
+    <string name="enter_pin">Enter 6-Digit PIN</string>
+    <string name="confirm_pin">Confirm 6-Digit PIN</string>
+    <string name="log_in">Log In</string>
+    <string name="recharge">Recharge</string>
+    <string name="history">History</string>
+    <string name="my_wallet">My Wallet</string>
+    <string name="total_balance">Total Balance</string>
+    <string name="main_balance">Main Balance</string>
+    <string name="bonus_balance">Bonus Balance</string>
+    <string name="add_money">Add Money to Wallet</string>
+    <string name="show_qr">Show QR code</string>
+    <string name="hide_qr">Hide QR code</string>
+    <string name="profile_settings">Profile &amp; Settings</string>
+    <string name="export_data">Export My Data (GDPR)</string>
+    <string name="log_out">Log Out</string>
 </resources>

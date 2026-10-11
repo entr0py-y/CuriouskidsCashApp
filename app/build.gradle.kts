@@ -33,17 +33,12 @@ android {
         warningsAsErrors = true
         abortOnError = true
         disable.add("UnusedMaterial3ScaffoldPaddingParameter")
-        // disable some layout/icon rules temporarily for A0 placeholders
         disable.add("IconMissingDensityFolder")
     }
 
     signingConfigs {
         create("release") {
             // Placeholder: Do not commit actual keystore or passwords!
-            // storeFile = file("path/to/keystore.jks")
-            // storePassword = System.getenv("KEYSTORE_PASSWORD")
-            // keyAlias = System.getenv("KEY_ALIAS")
-            // keyPassword = System.getenv("KEY_PASSWORD")
         }
     }
 
@@ -61,9 +56,14 @@ android {
         getByName("release") {
             buildConfigField("String", "API_BASE_URL", "\"https://api.skyjumpers.com/api/v1/\"")
             isMinifyEnabled = true
-            // signingConfig = signingConfigs.getByName("release")
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
@@ -79,7 +79,7 @@ dependencies {
 
     // hilt
     implementation(libs.hilt.android)
-    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.hilt.navigation.compose)
     ksp(libs.hilt.android.compiler)
 
     // view-model lifecycle
@@ -110,17 +110,19 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
+
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.turbine)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockwebserver)
+
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.mockk)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
+
     debugImplementation(libs.androidx.compose.ui.tooling)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }
