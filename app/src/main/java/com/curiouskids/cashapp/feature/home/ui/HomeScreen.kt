@@ -3,10 +3,8 @@ package com.curiouskids.cashapp.feature.home.ui
 import android.app.Activity
 import android.view.WindowManager
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
@@ -84,6 +82,26 @@ fun HomeScreen(
         ) {
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Bonus Offer Banner
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text("Recharge Bonus Offer", fontWeight = FontWeight.Bold)
+                        Text("Recharge ₹500 & Get ₹50 Free Bonus!", style = MaterialTheme.typography.bodySmall)
+                    }
+                    TextButton(onClick = onNavigateToOffers) {
+                        Text("Offers")
+                    }
+                }
+            }
+
             // Center: Large Square QR Card (75-85% screen width)
             QrCard(
                 state = state,
@@ -137,10 +155,10 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 TextButton(onClick = onNavigateToBookings) {
-                    Text("Bookings (Coming Soon)", fontSize = 14.sp)
+                    Text("Book Tickets", fontSize = 14.sp)
                 }
                 TextButton(onClick = onNavigateToOffers) {
-                    Text("Offers (Coming Soon)", fontSize = 14.sp)
+                    Text("Offers & Referral", fontSize = 14.sp)
                 }
             }
 

@@ -4,6 +4,7 @@ import com.curiouskids.cashapp.BuildConfig
 import com.curiouskids.cashapp.feature.auth.data.AuthApiService
 import com.curiouskids.cashapp.feature.auth.data.AuthAuthenticator
 import com.curiouskids.cashapp.feature.auth.data.AuthInterceptor
+import com.curiouskids.cashapp.feature.engagement.data.EngagementApiService
 import com.curiouskids.cashapp.feature.home.data.HomeApiService
 import com.curiouskids.cashapp.feature.profile.data.ProfileApiService
 import com.curiouskids.cashapp.feature.wallet.data.WalletApiService
@@ -84,5 +85,11 @@ object NetworkModule {
     @Singleton
     fun provideWalletApi(retrofit: Retrofit): WalletApiService {
         return retrofit.create(WalletApiService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideEngagementApi(retrofit: Retrofit): EngagementApiService {
+        return retrofit.create(EngagementApiService::class.java)
     }
 }
