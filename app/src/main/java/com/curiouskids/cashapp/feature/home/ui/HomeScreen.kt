@@ -18,10 +18,11 @@ import androidx.compose.material.icons.filled.ConfirmationNumber
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LocalOffer
-import androidx.compose.material.icons.filled.MoreHoriz
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.QrCode
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
@@ -78,7 +79,7 @@ fun HomeScreen(
     }
 
     Scaffold(
-        containerColor = VaultaNavyBackground,
+        containerColor = SkyjumpersMidnightNavy,
         topBar = {
             HomeTopBar(
                 profileName = state.profileName,
@@ -107,7 +108,7 @@ fun HomeScreen(
         ) {
             Spacer(modifier = Modifier.height(4.dp))
 
-            // Total Balance Card (Vaulta Royal Blue Gradient Header)
+            // Total Balance Card (Gradient Header)
             VaultaBalanceCard(
                 state = state,
                 onToggleVisibility = viewModel::toggleQrVisibility,
@@ -115,7 +116,7 @@ fun HomeScreen(
                 onHistory = onNavigateToHistory
             )
 
-            // Skyjumpers Central QR Pass Card
+            // Skyjumpers Signature Game Pass Card
             VaultaQrPassCard(
                 state = state,
                 onToggleVisibility = viewModel::toggleQrVisibility,
@@ -159,22 +160,22 @@ fun HomeTopBar(
             Box(contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(
                     progress = { completionPercentage / 100f },
-                    modifier = Modifier.size(42.dp),
+                    modifier = Modifier.size(44.dp),
                     strokeWidth = 2.dp,
-                    color = VaultaElectricBlue,
-                    trackColor = VaultaCardSurface
+                    color = SkyjumpersElectricBlue,
+                    trackColor = SkyjumpersCardSurface
                 )
                 Box(
                     modifier = Modifier
-                        .size(34.dp)
+                        .size(36.dp)
                         .clip(CircleShape)
-                        .background(VaultaCardSurface),
+                        .background(SkyjumpersCardSurface),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Person,
                         contentDescription = "Profile",
-                        tint = VaultaTextPrimary,
+                        tint = SkyjumpersTextPrimary,
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -185,7 +186,7 @@ fun HomeTopBar(
                     text = "Hello $firstName!",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = VaultaTextPrimary
+                    color = SkyjumpersTextPrimary
                 )
             }
         }
@@ -195,15 +196,15 @@ fun HomeTopBar(
             modifier = Modifier
                 .size(42.dp)
                 .clip(CircleShape)
-                .background(VaultaCardSurface)
-                .border(1.dp, VaultaCardBorder, CircleShape)
+                .background(SkyjumpersCardSurface)
+                .border(1.dp, SkyjumpersCardBorder, CircleShape)
                 .clickable { },
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.Notifications,
                 contentDescription = "Notifications",
-                tint = VaultaTextPrimary,
+                tint = SkyjumpersTextPrimary,
                 modifier = Modifier.size(20.dp)
             )
         }
@@ -219,8 +220,8 @@ fun VaultaBalanceCard(
 ) {
     val gradientBrush = Brush.verticalGradient(
         colors = listOf(
-            VaultaBlueGradientStart,
-            VaultaBlueGradientEnd
+            SkyjumpersGradientStart,
+            SkyjumpersGradientEnd
         )
     )
 
@@ -277,7 +278,7 @@ fun VaultaBalanceCard(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Action Pills (Fund / History)
+                // Action Pills (Recharge / History)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -324,8 +325,8 @@ fun VaultaQrPassCard(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = VaultaCardSurface),
-        border = androidx.compose.foundation.BorderStroke(1.dp, VaultaCardBorder)
+        colors = CardDefaults.cardColors(containerColor = SkyjumpersCardSurface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, SkyjumpersCardBorder)
     ) {
         Column(
             modifier = Modifier
@@ -342,7 +343,7 @@ fun VaultaQrPassCard(
                     Icon(
                         imageVector = Icons.Default.QrCode,
                         contentDescription = null,
-                        tint = VaultaElectricBlue,
+                        tint = SkyjumpersElectricBlue,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -350,14 +351,14 @@ fun VaultaQrPassCard(
                         text = "Skyjumpers Game Pass",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = VaultaTextPrimary
+                        color = SkyjumpersTextPrimary
                     )
                 }
 
                 TextButton(onClick = onToggleVisibility) {
                     Text(
                         text = if (state.isQrVisible) "Hide Pass" else "Reveal Pass",
-                        color = VaultaElectricBlue,
+                        color = SkyjumpersElectricBlue,
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 13.sp
                     )
@@ -366,37 +367,64 @@ fun VaultaQrPassCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Quiet zone white container for guaranteed hardware barcode scanner reading
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.85f)
-                    .aspectRatio(1f)
-                    .clip(RoundedCornerShape(18.dp))
-                    .background(Color.White)
-                    .padding(16.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                if (!state.isQrVisible) {
+            if (!state.isQrVisible) {
+                // Polished intentionally-designed hidden state (Dark glass/metallic security card)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.85f)
+                        .aspectRatio(1f)
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(SkyjumpersMidnightNavy)
+                        .border(1.dp, SkyjumpersCardBorder, RoundedCornerShape(18.dp))
+                        .padding(20.dp),
+                    contentAlignment = Alignment.Center
+                ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = Icons.Default.VisibilityOff,
-                            contentDescription = null,
-                            tint = Color.Gray,
-                            modifier = Modifier.size(48.dp)
+                        Box(
+                            modifier = Modifier
+                                .size(56.dp)
+                                .clip(CircleShape)
+                                .background(SkyjumpersCardSurface)
+                                .border(1.dp, SkyjumpersElectricBlue.copy(alpha = 0.4f), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Security,
+                                contentDescription = null,
+                                tint = SkyjumpersElectricBlue,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = "Game Pass Secured",
+                            fontWeight = FontWeight.Bold,
+                            color = SkyjumpersTextPrimary,
+                            style = MaterialTheme.typography.titleSmall
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Tap Reveal Pass above to show your scannable QR pass",
                             textAlign = TextAlign.Center,
-                            color = Color.DarkGray,
-                            style = MaterialTheme.typography.bodySmall,
-                            fontWeight = FontWeight.Medium
+                            color = SkyjumpersTextSecondary,
+                            style = MaterialTheme.typography.bodySmall
                         )
                     }
-                } else {
+                }
+            } else {
+                // Revealed high-contrast pure white container for hardware scanner reading
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.85f)
+                        .aspectRatio(1f)
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(Color.White)
+                        .padding(16.dp),
+                    contentAlignment = Alignment.Center
+                ) {
                     when (val qr = state.qrState) {
                         is QrState.Loading -> {
-                            CircularProgressIndicator(color = VaultaElectricBlue)
+                            CircularProgressIndicator(color = SkyjumpersElectricBlue)
                         }
                         is QrState.Visible -> {
                             Column(
@@ -453,15 +481,15 @@ fun QuickActionsGrid(
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = VaultaCardSurface),
-        border = androidx.compose.foundation.BorderStroke(1.dp, VaultaCardBorder)
+        colors = CardDefaults.cardColors(containerColor = SkyjumpersCardSurface),
+        border = androidx.compose.foundation.BorderStroke(1.dp, SkyjumpersCardBorder)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
                 text = "Quick Actions",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = VaultaTextPrimary
+                color = SkyjumpersTextPrimary
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -474,29 +502,29 @@ fun QuickActionsGrid(
                     icon = Icons.Default.ConfirmationNumber,
                     label = "Book",
                     onClick = onNavigateToBookings,
-                    containerColor = VaultaNavyBackground,
-                    contentColor = VaultaTextPrimary
+                    containerColor = SkyjumpersMidnightNavy,
+                    contentColor = SkyjumpersTextPrimary
                 )
                 CircularActionButton(
                     icon = Icons.Default.LocalOffer,
                     label = "Offers",
                     onClick = onNavigateToOffers,
-                    containerColor = VaultaNavyBackground,
-                    contentColor = VaultaTextPrimary
+                    containerColor = SkyjumpersMidnightNavy,
+                    contentColor = SkyjumpersTextPrimary
                 )
                 CircularActionButton(
                     icon = Icons.Default.Add,
                     label = "Recharge",
                     onClick = onNavigateToRecharge,
-                    containerColor = VaultaNavyBackground,
-                    contentColor = VaultaTextPrimary
+                    containerColor = SkyjumpersMidnightNavy,
+                    contentColor = SkyjumpersTextPrimary
                 )
                 CircularActionButton(
                     icon = Icons.Default.Person,
                     label = "Profile",
                     onClick = onNavigateToProfile,
-                    containerColor = VaultaNavyBackground,
-                    contentColor = VaultaTextPrimary
+                    containerColor = SkyjumpersMidnightNavy,
+                    contentColor = SkyjumpersTextPrimary
                 )
             }
         }
@@ -508,8 +536,8 @@ fun CircularActionButton(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
     onClick: () -> Unit,
-    containerColor: Color = VaultaNavyBackground,
-    contentColor: Color = VaultaTextPrimary
+    containerColor: Color = SkyjumpersMidnightNavy,
+    contentColor: Color = SkyjumpersTextPrimary
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -521,7 +549,7 @@ fun CircularActionButton(
                 .size(52.dp)
                 .clip(CircleShape)
                 .background(containerColor)
-                .border(1.dp, VaultaCardBorder, CircleShape)
+                .border(1.dp, SkyjumpersCardBorder, CircleShape)
         ) {
             Icon(
                 imageVector = icon,
@@ -534,7 +562,7 @@ fun CircularActionButton(
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall,
-            color = VaultaTextMuted
+            color = SkyjumpersTextSecondary
         )
     }
 }
@@ -548,7 +576,7 @@ fun SkyjumpersBottomNav(
     onNavigateToProfile: () -> Unit
 ) {
     NavigationBar(
-        containerColor = VaultaCardSurface,
+        containerColor = SkyjumpersCardSurface,
         tonalElevation = 8.dp,
         windowInsets = NavigationBarDefaults.windowInsets
     ) {
@@ -558,11 +586,11 @@ fun SkyjumpersBottomNav(
             selected = currentRoute == "home",
             onClick = onNavigateToHome,
             colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = VaultaElectricBlue,
-                unselectedIconColor = VaultaTextMuted,
-                selectedTextColor = VaultaElectricBlue,
-                unselectedTextColor = VaultaTextMuted,
-                indicatorColor = VaultaCardSurface
+                selectedIconColor = SkyjumpersElectricBlue,
+                unselectedIconColor = SkyjumpersTextSecondary,
+                selectedTextColor = SkyjumpersElectricBlue,
+                unselectedTextColor = SkyjumpersTextSecondary,
+                indicatorColor = SkyjumpersCardSurface
             )
         )
         NavigationBarItem(
@@ -571,11 +599,11 @@ fun SkyjumpersBottomNav(
             selected = currentRoute == "wallet",
             onClick = onNavigateToWallet,
             colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = VaultaElectricBlue,
-                unselectedIconColor = VaultaTextMuted,
-                selectedTextColor = VaultaElectricBlue,
-                unselectedTextColor = VaultaTextMuted,
-                indicatorColor = VaultaCardSurface
+                selectedIconColor = SkyjumpersElectricBlue,
+                unselectedIconColor = SkyjumpersTextSecondary,
+                selectedTextColor = SkyjumpersElectricBlue,
+                unselectedTextColor = SkyjumpersTextSecondary,
+                indicatorColor = SkyjumpersCardSurface
             )
         )
         NavigationBarItem(
@@ -584,11 +612,11 @@ fun SkyjumpersBottomNav(
             selected = currentRoute == "bookings",
             onClick = onNavigateToBookings,
             colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = VaultaElectricBlue,
-                unselectedIconColor = VaultaTextMuted,
-                selectedTextColor = VaultaElectricBlue,
-                unselectedTextColor = VaultaTextMuted,
-                indicatorColor = VaultaCardSurface
+                selectedIconColor = SkyjumpersElectricBlue,
+                unselectedIconColor = SkyjumpersTextSecondary,
+                selectedTextColor = SkyjumpersElectricBlue,
+                unselectedTextColor = SkyjumpersTextSecondary,
+                indicatorColor = SkyjumpersCardSurface
             )
         )
         NavigationBarItem(
@@ -597,11 +625,11 @@ fun SkyjumpersBottomNav(
             selected = currentRoute == "profile",
             onClick = onNavigateToProfile,
             colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = VaultaElectricBlue,
-                unselectedIconColor = VaultaTextMuted,
-                selectedTextColor = VaultaElectricBlue,
-                unselectedTextColor = VaultaTextMuted,
-                indicatorColor = VaultaCardSurface
+                selectedIconColor = SkyjumpersElectricBlue,
+                unselectedIconColor = SkyjumpersTextSecondary,
+                selectedTextColor = SkyjumpersElectricBlue,
+                unselectedTextColor = SkyjumpersTextSecondary,
+                indicatorColor = SkyjumpersCardSurface
             )
         )
     }

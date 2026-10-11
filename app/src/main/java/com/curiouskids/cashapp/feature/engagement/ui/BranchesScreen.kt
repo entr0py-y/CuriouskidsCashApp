@@ -2,11 +2,15 @@ package com.curiouskids.cashapp.feature.engagement.ui
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.*
@@ -19,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import com.curiouskids.cashapp.core.designsystem.component.SkyjumpersPrimaryButton
 import com.curiouskids.cashapp.core.designsystem.component.SkyjumpersSecondaryButton
+import com.curiouskids.cashapp.core.designsystem.theme.*
 
 data class BranchItem(
     val id: String,
@@ -60,14 +65,16 @@ fun BranchesScreen(
     val context = LocalContext.current
 
     Scaffold(
+        containerColor = SkyjumpersMidnightNavy,
         topBar = {
             TopAppBar(
-                title = { Text("Our Branches") },
+                title = { Text("Our Branches", color = SkyjumpersTextPrimary, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = SkyjumpersTextPrimary)
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = SkyjumpersMidnightNavy)
             )
         }
     ) { padding ->
@@ -75,7 +82,7 @@ fun BranchesScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item { Spacer(modifier = Modifier.height(4.dp)) }
@@ -83,28 +90,74 @@ fun BranchesScreen(
             items(DEFAULT_BRANCHES) { branch ->
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = SkyjumpersCardSurface),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, SkyjumpersCardBorder)
                 ) {
-                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(branch.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.LocationOn, contentDescription = null, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(branch.address, style = MaterialTheme.typography.bodySmall)
-                        }
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.Phone, contentDescription = null, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("${branch.phone} • ${branch.hours}", style = MaterialTheme.typography.bodySmall)
+                    Column(
+                        modifier = Modifier.padding(20.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(
+                            text = branch.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = SkyjumpersTextPrimary
+                        )
+
+                        Row(verticalAlignment = Alignment.Top) {
+                            Icon(
+                                Icons.Default.LocationOn,
+                                contentDescription = null,
+                                tint = SkyjumpersElectricBlue,
+                                modifier = Modifier.size(18.dp).padding(top = 2.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = branch.address,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = SkyjumpersTextSecondary
+                            )
                         }
 
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                Icons.Default.Phone,
+                                contentDescription = null,
+                                tint = SkyjumpersElectricBlue,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = branch.phone,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = SkyjumpersTextSecondary
+                            )
+                        }
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                Icons.Default.AccessTime,
+                                contentDescription = null,
+                                tint = SkyjumpersElectricBlue,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Hours: ${branch.hours}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = SkyjumpersTextSecondary
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             SkyjumpersSecondaryButton(
-                                text = "Get Directions",
+                                text = "Directions",
                                 onClick = {
                                     val uri = "geo:${branch.lat},${branch.lng}?q=${Uri.encode(branch.name)}".toUri()
                                     val intent = Intent(Intent.ACTION_VIEW, uri)

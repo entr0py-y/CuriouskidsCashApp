@@ -9,7 +9,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 SECRET_KEY = env('DJANGO_SECRET_KEY', default='django-insecure-local-dev-key-skyjumpers-2026')
 DEBUG = env.bool('DJANGO_DEBUG', default=True)
-ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['127.0.0.1', 'localhost', '10.0.2.2', 'testserver'])
+ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=['127.0.0.1', 'localhost', '10.0.2.2', '192.168.1.37', '*', 'testserver'])
 
 INSTALLED_APPS = [
     'django.contrib.admin',
