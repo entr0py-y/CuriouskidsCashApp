@@ -16,10 +16,13 @@ urlpatterns = [
 
     # Core User API v1 routing
     path('api/v1/auth/', include('accounts.urls')),
-    path('api/v1/wallet/', include('payments.urls')), # /api/v1/wallet/topups
+    path('api/v1/wallet/', include('payments.urls')),
     path('api/v1/wallet', include('wallets.urls')),
     path('api/v1/qr/', include('qr.urls')),
     path('api/v1/', include('profiles.urls')),
+    path('api/v1/', include('bookings.urls')),
+    path('api/v1/', include('offers.urls')),
+    path('api/v1/', include('notifications.urls')),
 
     # Machine Hardware API v1
     path('api/machine/v1/', include('machines.urls')),
