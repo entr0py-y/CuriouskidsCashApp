@@ -2,13 +2,23 @@ package com.curiouskids.cashapp.core.designsystem.theme
 
 import androidx.compose.ui.graphics.Color
 
-val SkyjumpersPrimary = Color(0xFFE53935) // Red placeholder
-val SkyjumpersPrimaryDark = Color(0xFFB71C1C)
-val SkyjumpersSecondary = Color(0xFF1E88E5) // Blue placeholder
-val SkyjumpersBackground = Color(0xFFF5F5F5)
-val SkyjumpersSurface = Color(0xFFFFFFFF)
-val SkyjumpersError = Color(0xFFD32F2F)
+val VaultaNavyBackground = Color(0xFF070A11)
+val VaultaCardSurface = Color(0xFF0F172A)
+val VaultaCardBorder = Color(0xFF1E293B)
+val VaultaElectricBlue = Color(0xFF3B82F6)
+val VaultaBlueGradientStart = Color(0xFF1D4ED8)
+val VaultaBlueGradientEnd = Color(0xFF3B82F6)
+val VaultaTextPrimary = Color(0xFFF8FAFC)
+val VaultaTextMuted = Color(0xFF94A3B8)
+val VaultaError = Color(0xFFEF4444)
 
-val SkyjumpersDarkBackground = Color(0xFF121212)
-val SkyjumpersDarkSurface = Color(0xFF1E1E1E)
-val SkyjumpersDarkPrimary = Color(0xFFEF5350)
+val SkyjumpersPrimary = VaultaElectricBlue
+val SkyjumpersPrimaryDark = Color(0xFF1E40AF)
+val SkyjumpersSecondary = Color(0xFF1E293B)
+val SkyjumpersBackground = VaultaNavyBackground
+val SkyjumpersSurface = VaultaCardSurface
+val SkyjumpersError = VaultaError
+
+val SkyjumpersDarkBackground = VaultaNavyBackground
+val SkyjumpersDarkSurface = VaultaCardSurface
+val SkyjumpersDarkPrimary = VaultaElectricBlue
