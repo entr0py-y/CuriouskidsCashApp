@@ -19,6 +19,7 @@ urlpatterns = [
     path('api/v1/wallet/', include('payments.urls')),
     path('api/v1/wallet', include('wallets.urls')),
     path('api/v1/qr/', include('qr.urls')),
+    path('api/v1/admin/', include('adminpanel.urls')),
     path('api/v1/', include('profiles.urls')),
     path('api/v1/', include('bookings.urls')),
     path('api/v1/', include('offers.urls')),
