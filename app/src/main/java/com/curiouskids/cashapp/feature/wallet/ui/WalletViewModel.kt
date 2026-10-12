@@ -6,6 +6,7 @@ import com.curiouskids.cashapp.core.common.DispatcherProvider
 import com.curiouskids.cashapp.core.network.Result
 import com.curiouskids.cashapp.feature.wallet.data.WalletRepository
 import com.curiouskids.cashapp.feature.wallet.domain.*
+import com.curiouskids.cashapp.usb.UsbSerialManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -44,16 +45,50 @@ data class WalletUiState(
 @HiltViewModel
 class WalletViewModel @Inject constructor(
     private val repository: WalletRepository,
+    private val usbSerialManager: UsbSerialManager,
     private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(WalletUiState())
     val uiState: StateFlow<WalletUiState> = _uiState.asStateFlow()
 
+    val isUsbConnected = usbSerialManager.isConnected
+    val isUsbDeviceAttached = usbSerialManager.isDeviceAttached
+
     private var pollingJob: Job? = null
 
     init {
         loadWalletData()
+        listenToUsbCashNotes()
+    }
+
+    private fun listenToUsbCashNotes() {
+        viewModelScope.launch(dispatchers.main) {
+            usbSerialManager.cashNoteAcceptedFlow.collect { noteRupees ->
+                if (noteRupees > 0) {
+                    val notePaise = noteRupees * 100
+                    val updatedMain = _uiState.value.mainBalancePaise + notePaise
+                    val updatedTotal = _uiState.value.totalBalancePaise + notePaise
+
+                    _uiState.update {
+                        it.copy(
+                            mainBalancePaise = updatedMain,
+                            totalBalancePaise = updatedTotal,
+                            errorMessage = "💵 Cash Accepted: ₹$noteRupees added to Wallet!"
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun connectUsbHardware() {
+        val device = usbSerialManager.findDevice()
+        if (device != null) {
+            usbSerialManager.connect(device)
+        } else {
+            usbSerialManager.connectToMacUsbBridge()
+        }
     }
 
     fun loadWalletData() {
