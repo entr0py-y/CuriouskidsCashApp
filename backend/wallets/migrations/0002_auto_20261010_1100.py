@@ -26,6 +26,14 @@ DROP TRIGGER IF EXISTS ensure_transaction_balance ON wallets_ledgerentry;
 DROP FUNCTION IF EXISTS check_ledger_balance();
 """
 
+def create_pg_trigger(apps, schema_editor):
+    if schema_editor.connection.vendor == 'postgresql':
+        schema_editor.execute(SQL_UP)
+
+def drop_pg_trigger(apps, schema_editor):
+    if schema_editor.connection.vendor == 'postgresql':
+        schema_editor.execute(SQL_DOWN)
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -33,5 +41,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL(SQL_UP, SQL_DOWN),
+        migrations.RunPython(create_pg_trigger, drop_pg_trigger),
     ]

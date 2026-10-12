@@ -2,34 +2,50 @@ package com.curiouskids.cashapp.core.designsystem.theme
 
 import androidx.compose.ui.graphics.Color
 
-val SkyjumpersMidnightNavy = Color(0xFF070B14)
-val SkyjumpersCardSurface = Color(0xFF0F172A)
-val SkyjumpersCardBorder = Color(0xFF1E293B)
-val SkyjumpersCardBorderHighlight = Color(0xFF334155)
+// Skyjumpers Warm Off-White Aesthetic Palette (Reference-driven redesign)
+val SkyjumpersOffWhite = Color(0xFFF7F7F5)
+val SkyjumpersSurfaceWhite = Color(0xFFFFFFFF)
+val SkyjumpersLayerNeutral = Color(0xFFEBEBE8)
+val SkyjumpersLayerNeutralBorder = Color(0xFFE2E2DF)
 
-val SkyjumpersElectricBlue = Color(0xFF3B82F6)
-val SkyjumpersCyan = Color(0xFF06B6D4)
-val SkyjumpersViolet = Color(0xFF8B5CF6)
-val SkyjumpersGradientStart = Color(0xFF1D4ED8)
-val SkyjumpersGradientEnd = Color(0xFF3B82F6)
+// Dark Charcoal Contrast Cards (Reference style)
+val SkyjumpersCharcoalCard = Color(0xFF1C1C1E)
+val SkyjumpersCharcoalCardBorder = Color(0xFF2C2C2E)
 
-val SkyjumpersTextPrimary = Color(0xFFF8FAFC)
-val SkyjumpersTextSecondary = Color(0xFF94A3B8)
-val SkyjumpersError = Color(0xFFEF4444)
+// Text Colors
+val SkyjumpersTextBlack = Color(0xFF111111)
+val SkyjumpersTextSecondaryGrey = Color(0xFF6B6B6B)
+val SkyjumpersTextMutedGrey = Color(0xFF8E8E93)
+
+// Accent Colors
+val SkyjumpersElectricBlue = Color(0xFF2563EB)
+val SkyjumpersCyan = Color(0xFF0284C7)
+val SkyjumpersViolet = Color(0xFF7C3AED)
+val SkyjumpersEmerald = Color(0xFF059669)
+val SkyjumpersError = Color(0xFFDC2626)
+
+// Gradient Accents
+val SkyjumpersGradientStart = Color(0xFF1C1C1E)
+val SkyjumpersGradientEnd = Color(0xFF2C2C2E)
 
 // Backwards compatibility aliases
-val VaultaNavyBackground = SkyjumpersMidnightNavy
-val VaultaCardSurface = SkyjumpersCardSurface
-val VaultaCardBorder = SkyjumpersCardBorder
+val SkyjumpersMidnightNavy = SkyjumpersOffWhite
+val SkyjumpersCardSurface = SkyjumpersSurfaceWhite
+val SkyjumpersCardBorder = SkyjumpersLayerNeutralBorder
+val SkyjumpersCardBorderHighlight = SkyjumpersLayerNeutral
+
+val VaultaNavyBackground = SkyjumpersOffWhite
+val VaultaCardSurface = SkyjumpersSurfaceWhite
+val VaultaCardBorder = SkyjumpersLayerNeutralBorder
 val VaultaElectricBlue = SkyjumpersElectricBlue
 val VaultaBlueGradientStart = SkyjumpersGradientStart
 val VaultaBlueGradientEnd = SkyjumpersGradientEnd
-val VaultaTextPrimary = SkyjumpersTextPrimary
-val VaultaTextMuted = SkyjumpersTextSecondary
+val VaultaTextPrimary = SkyjumpersTextBlack
+val VaultaTextMuted = SkyjumpersTextSecondaryGrey
 val VaultaError = SkyjumpersError
 
-val SkyjumpersPrimary = SkyjumpersElectricBlue
-val SkyjumpersPrimaryDark = Color(0xFF1E40AF)
-val SkyjumpersSecondary = SkyjumpersCardSurface
-val SkyjumpersBackground = SkyjumpersMidnightNavy
-val SkyjumpersSurface = SkyjumpersCardSurface
+val SkyjumpersPrimary = SkyjumpersTextBlack
+val SkyjumpersPrimaryDark = Color(0xFF000000)
+val SkyjumpersSecondary = SkyjumpersLayerNeutral
+val SkyjumpersBackground = SkyjumpersOffWhite
+val SkyjumpersSurface = SkyjumpersSurfaceWhite

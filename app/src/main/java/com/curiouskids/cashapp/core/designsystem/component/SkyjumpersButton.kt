@@ -8,7 +8,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.curiouskids.cashapp.core.designsystem.theme.*
 
 @Composable
@@ -30,24 +30,24 @@ fun SkyjumpersPrimaryButton(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .height(54.dp),
+            .height(52.dp),
         enabled = enabled && !isLoading,
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(26.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = SkyjumpersElectricBlue,
+            containerColor = SkyjumpersTextBlack,
             contentColor = Color.White,
-            disabledContainerColor = SkyjumpersCardSurface,
-            disabledContentColor = SkyjumpersTextSecondary
+            disabledContainerColor = SkyjumpersLayerNeutral,
+            disabledContentColor = SkyjumpersTextMutedGrey
         )
     ) {
         if (isLoading) {
             CircularProgressIndicator(
-                modifier = Modifier.size(24.dp),
+                modifier = Modifier.size(22.dp),
                 color = Color.White,
                 strokeWidth = 2.dp
             )
         } else {
-            Text(text, fontWeight = FontWeight.Bold)
+            Text(text, fontWeight = FontWeight.Bold, fontSize = 15.sp)
         }
     }
 }
@@ -63,15 +63,16 @@ fun SkyjumpersSecondaryButton(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .height(54.dp),
+            .height(52.dp),
         enabled = enabled,
-        shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, SkyjumpersElectricBlue),
+        shape = RoundedCornerShape(26.dp),
+        border = BorderStroke(1.dp, SkyjumpersLayerNeutralBorder),
         colors = ButtonDefaults.outlinedButtonColors(
-            contentColor = SkyjumpersElectricBlue,
-            disabledContentColor = SkyjumpersTextSecondary
+            containerColor = SkyjumpersSurfaceWhite,
+            contentColor = SkyjumpersTextBlack,
+            disabledContentColor = SkyjumpersTextMutedGrey
         )
     ) {
-        Text(text, fontWeight = FontWeight.SemiBold)
+        Text(text, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
     }
 }

@@ -2,11 +2,13 @@ package com.curiouskids.cashapp.feature.engagement.ui
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -17,10 +19,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
+import com.curiouskids.cashapp.core.designsystem.component.SkyjumpersFloatingBottomNav
 import com.curiouskids.cashapp.core.designsystem.component.SkyjumpersPrimaryButton
 import com.curiouskids.cashapp.core.designsystem.component.SkyjumpersSecondaryButton
 import com.curiouskids.cashapp.core.designsystem.theme.*
@@ -64,116 +70,161 @@ fun BranchesScreen(
 ) {
     val context = LocalContext.current
 
-    Scaffold(
-        containerColor = SkyjumpersMidnightNavy,
-        topBar = {
-            TopAppBar(
-                title = { Text("Our Branches", color = SkyjumpersTextPrimary, fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = SkyjumpersTextPrimary)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = SkyjumpersMidnightNavy)
-            )
-        }
-    ) { padding ->
-        LazyColumn(
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(SkyjumpersOffWhite)
+    ) {
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .statusBarsPadding()
+                .padding(horizontal = 20.dp)
         ) {
-            item { Spacer(modifier = Modifier.height(4.dp)) }
+            // Header Bar
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onNavigateBack) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = SkyjumpersTextBlack
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    "Our Branches",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = SkyjumpersTextBlack
+                )
+            }
 
-            items(DEFAULT_BRANCHES) { branch ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(containerColor = SkyjumpersCardSurface),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, SkyjumpersCardBorder)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(20.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                items(DEFAULT_BRANCHES) { branch ->
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(28.dp),
+                        color = SkyjumpersSurfaceWhite,
+                        border = BorderStroke(1.dp, SkyjumpersLayerNeutralBorder)
                     ) {
-                        Text(
-                            text = branch.name,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = SkyjumpersTextPrimary
-                        )
-
-                        Row(verticalAlignment = Alignment.Top) {
-                            Icon(
-                                Icons.Default.LocationOn,
-                                contentDescription = null,
-                                tint = SkyjumpersElectricBlue,
-                                modifier = Modifier.size(18.dp).padding(top = 2.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = branch.address,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = SkyjumpersTextSecondary
-                            )
-                        }
-
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Default.Phone,
-                                contentDescription = null,
-                                tint = SkyjumpersElectricBlue,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = branch.phone,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = SkyjumpersTextSecondary
-                            )
-                        }
-
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Default.AccessTime,
-                                contentDescription = null,
-                                tint = SkyjumpersElectricBlue,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Hours: ${branch.hours}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = SkyjumpersTextSecondary
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(4.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        Column(
+                            modifier = Modifier.padding(20.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            SkyjumpersSecondaryButton(
-                                text = "Directions",
-                                onClick = {
-                                    val uri = "geo:${branch.lat},${branch.lng}?q=${Uri.encode(branch.name)}".toUri()
-                                    val intent = Intent(Intent.ACTION_VIEW, uri)
-                                    context.startActivity(intent)
-                                },
-                                modifier = Modifier.weight(1f)
-                            )
-                            SkyjumpersPrimaryButton(
-                                text = "Book Slot",
-                                onClick = { onBookBranch(branch.id) },
-                                modifier = Modifier.weight(1f)
-                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = branch.name,
+                                    fontSize = 17.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = SkyjumpersTextBlack
+                                )
+                                Surface(
+                                    shape = RoundedCornerShape(50),
+                                    color = Color(0xFFDCFCE7)
+                                ) {
+                                    Text(
+                                        text = "Open Now",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF059669),
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                    )
+                                }
+                            }
+
+                            Row(verticalAlignment = Alignment.Top) {
+                                Icon(
+                                    Icons.Default.LocationOn,
+                                    contentDescription = null,
+                                    tint = SkyjumpersTextSecondaryGrey,
+                                    modifier = Modifier.size(18.dp).padding(top = 2.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = branch.address,
+                                    fontSize = 13.sp,
+                                    color = SkyjumpersTextSecondaryGrey
+                                )
+                            }
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    Icons.Default.Phone,
+                                    contentDescription = null,
+                                    tint = SkyjumpersTextSecondaryGrey,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = branch.phone,
+                                    fontSize = 13.sp,
+                                    color = SkyjumpersTextSecondaryGrey
+                                )
+                            }
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    Icons.Default.AccessTime,
+                                    contentDescription = null,
+                                    tint = SkyjumpersTextSecondaryGrey,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Hours: ${branch.hours}",
+                                    fontSize = 13.sp,
+                                    color = SkyjumpersTextSecondaryGrey
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                SkyjumpersSecondaryButton(
+                                    text = "Directions",
+                                    onClick = {
+                                        val uri = "geo:${branch.lat},${branch.lng}?q=${Uri.encode(branch.name)}".toUri()
+                                        val intent = Intent(Intent.ACTION_VIEW, uri)
+                                        context.startActivity(intent)
+                                    },
+                                    modifier = Modifier.weight(1f)
+                                )
+                                SkyjumpersPrimaryButton(
+                                    text = "Book Slot",
+                                    onClick = { onBookBranch(branch.id) },
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
                         }
                     }
                 }
+
+                item { Spacer(modifier = Modifier.height(100.dp)) }
             }
         }
+
+        SkyjumpersFloatingBottomNav(
+            currentRoute = "bookings",
+            onNavigateToHome = onNavigateBack,
+            onNavigateToWallet = { },
+            onNavigateToBookings = {},
+            onNavigateToProfile = {},
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 }

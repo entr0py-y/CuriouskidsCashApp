@@ -2,7 +2,9 @@ package com.curiouskids.cashapp.feature.profile.ui
 
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,7 +19,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -44,7 +45,6 @@ fun ProfileScreen(
     var formState by remember(state.profile) { mutableStateOf(state.profile) }
     var showAddChildDialog by remember { mutableStateOf(false) }
 
-    // Share Data Export Intent when JSON is available
     LaunchedEffect(state.exportDataJson) {
         state.exportDataJson?.let { json ->
             val sendIntent: Intent = Intent().apply {
@@ -61,57 +61,51 @@ fun ProfileScreen(
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
-        uri?.let {
-            // Photo upload trigger if supported
-        }
+        uri?.let { }
     }
 
-    Scaffold(
-        containerColor = SkyjumpersMidnightNavy,
-        topBar = {
-            TopAppBar(
-                title = { Text("Profile & Settings", color = SkyjumpersTextPrimary, fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = SkyjumpersTextPrimary)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = SkyjumpersMidnightNavy)
-            )
-        },
-        snackbarHost = {
-            state.errorMessage?.let { msg ->
-                Snackbar(modifier = Modifier.padding(16.dp)) { Text(msg) }
-                LaunchedEffect(msg) {
-                    kotlinx.coroutines.delay(3000)
-                    viewModel.dismissMessage()
-                }
-            }
-            state.isSuccessMessage?.let { msg ->
-                Snackbar(modifier = Modifier.padding(16.dp)) { Text(msg) }
-                LaunchedEffect(msg) {
-                    kotlinx.coroutines.delay(3000)
-                    viewModel.dismissMessage()
-                }
-            }
-        }
-    ) { padding ->
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(SkyjumpersOffWhite)
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .statusBarsPadding()
                 .padding(horizontal = 20.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Spacer(modifier = Modifier.height(4.dp))
+            // Header Bar
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onNavigateBack) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = SkyjumpersTextBlack
+                    )
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    "Profile & Settings",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = SkyjumpersTextBlack
+                )
+            }
 
-            // Profile Card with Electric Blue Ring Avatar & Completion Badge
-            Card(
+            // Profile Header Card
+            Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = SkyjumpersCardSurface),
-                border = androidx.compose.foundation.BorderStroke(1.dp, SkyjumpersCardBorder)
+                shape = RoundedCornerShape(28.dp),
+                color = SkyjumpersSurfaceWhite,
+                border = BorderStroke(1.dp, SkyjumpersLayerNeutralBorder)
             ) {
                 Row(
                     modifier = Modifier.padding(20.dp),
@@ -122,7 +116,7 @@ fun ProfileScreen(
                         contentAlignment = Alignment.Center,
                         modifier = Modifier.clickable {
                             photoPickerLauncher.launch(
-                                androidx.activity.result.PickVisualMediaRequest(
+                                PickVisualMediaRequest(
                                     ActivityResultContracts.PickVisualMedia.ImageOnly
                                 )
                             )
@@ -130,58 +124,65 @@ fun ProfileScreen(
                     ) {
                         CircularProgressIndicator(
                             progress = { state.profile.completion_percentage / 100f },
-                            modifier = Modifier.size(76.dp),
-                            strokeWidth = 4.dp,
-                            color = SkyjumpersElectricBlue,
-                            trackColor = SkyjumpersMidnightNavy
+                            modifier = Modifier.size(72.dp),
+                            strokeWidth = 3.5.dp,
+                            color = SkyjumpersTextBlack,
+                            trackColor = SkyjumpersLayerNeutral
                         )
                         Box(
                             modifier = Modifier
-                                .size(64.dp)
+                                .size(60.dp)
                                 .clip(CircleShape)
-                                .background(SkyjumpersMidnightNavy)
-                                .border(1.dp, SkyjumpersCardBorder, CircleShape),
+                                .background(SkyjumpersLayerNeutral),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 Icons.Default.Person,
                                 contentDescription = "Profile Photo",
-                                tint = SkyjumpersTextPrimary,
-                                modifier = Modifier.size(36.dp)
+                                tint = SkyjumpersTextBlack,
+                                modifier = Modifier.size(32.dp)
                             )
                         }
                         Box(
                             modifier = Modifier
                                 .align(Alignment.BottomEnd)
-                                .size(24.dp)
+                                .size(22.dp)
                                 .clip(CircleShape)
-                                .background(SkyjumpersElectricBlue),
+                                .background(SkyjumpersTextBlack),
                             contentAlignment = Alignment.Center
                         ) {
-                            Icon(Icons.Default.Edit, contentDescription = null, tint = Color.White, modifier = Modifier.size(12.dp))
+                            Icon(
+                                Icons.Default.Edit,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(11.dp)
+                            )
                         }
                     }
 
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = formState.full_name.ifBlank { "Skyjumpers Customer" },
-                            style = MaterialTheme.typography.titleMedium,
+                            fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
-                            color = SkyjumpersTextPrimary
+                            color = SkyjumpersTextBlack
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = "Profile Strength: ${state.profile.completion_percentage}%",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = SkyjumpersElectricBlue,
-                            fontWeight = FontWeight.SemiBold
+                            fontSize = 12.sp,
+                            color = SkyjumpersTextSecondaryGrey,
+                            fontWeight = FontWeight.Medium
                         )
                         Spacer(modifier = Modifier.height(6.dp))
                         LinearProgressIndicator(
                             progress = { state.profile.completion_percentage / 100f },
-                            modifier = Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)),
-                            color = SkyjumpersElectricBlue,
-                            trackColor = SkyjumpersMidnightNavy
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(5.dp)
+                                .clip(RoundedCornerShape(3.dp)),
+                            color = SkyjumpersTextBlack,
+                            trackColor = SkyjumpersLayerNeutral
                         )
                     }
                 }
@@ -189,34 +190,48 @@ fun ProfileScreen(
 
             // Completion Checklist Card
             if (state.checklist.isNotEmpty()) {
-                Card(
+                Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(18.dp),
-                    colors = CardDefaults.cardColors(containerColor = SkyjumpersMidnightNavy),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, SkyjumpersCardBorder)
+                    shape = RoundedCornerShape(20.dp),
+                    color = SkyjumpersLayerNeutral,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, SkyjumpersLayerNeutralBorder)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Missing Profile Info:", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = SkyjumpersTextPrimary)
-                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            "Missing Profile Info:",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp,
+                            color = SkyjumpersTextBlack
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
                         state.checklist.forEach { item ->
-                            Text("• $item", style = MaterialTheme.typography.bodySmall, color = SkyjumpersTextSecondary)
+                            Text(
+                                "• $item",
+                                fontSize = 12.sp,
+                                color = SkyjumpersTextSecondaryGrey
+                            )
                         }
                     }
                 }
             }
 
             // Personal Details Card
-            Card(
+            Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = SkyjumpersCardSurface),
-                border = androidx.compose.foundation.BorderStroke(1.dp, SkyjumpersCardBorder)
+                shape = RoundedCornerShape(28.dp),
+                color = SkyjumpersSurfaceWhite,
+                border = androidx.compose.foundation.BorderStroke(1.dp, SkyjumpersLayerNeutralBorder)
             ) {
                 Column(
                     modifier = Modifier.padding(20.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    Text("Personal Details", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = SkyjumpersTextPrimary)
+                    Text(
+                        "Personal Details",
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = SkyjumpersTextBlack
+                    )
 
                     SkyjumpersTextField(
                         value = formState.full_name,
@@ -254,14 +269,21 @@ fun ProfileScreen(
                         label = "Emergency Contact Phone"
                     )
 
-                    // Minor Guardian Card
                     if (state.isMinor) {
-                        Card(
-                            colors = CardDefaults.cardColors(containerColor = SkyjumpersMidnightNavy),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.error)
+                        Surface(
+                            shape = RoundedCornerShape(16.dp),
+                            color = SkyjumpersLayerNeutral
                         ) {
-                            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                Text("Guardian Details (Required for Under 18)", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.error)
+                            Column(
+                                modifier = Modifier.padding(14.dp),
+                                verticalArrangement = Arrangement.spacedBy(10.dp)
+                            ) {
+                                Text(
+                                    "Guardian Details (Under 18)",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.sp,
+                                    color = SkyjumpersTextBlack
+                                )
 
                                 SkyjumpersTextField(
                                     value = formState.guardian_name,
@@ -271,19 +293,23 @@ fun ProfileScreen(
                                 SkyjumpersTextField(
                                     value = formState.guardian_phone,
                                     onValueChange = { formState = formState.copy(guardian_phone = it) },
-                                    label = "Guardian Phone Number"
+                                    label = "Guardian Phone"
                                 )
                                 SkyjumpersTextField(
                                     value = formState.guardian_relationship,
                                     onValueChange = { formState = formState.copy(guardian_relationship = it) },
-                                    label = "Relationship (e.g. Father, Mother)"
+                                    label = "Relationship"
                                 )
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Checkbox(
                                         checked = formState.parental_consent_given,
                                         onCheckedChange = { formState = formState.copy(parental_consent_given = it) }
                                     )
-                                    Text("I confirm parental consent is granted", style = MaterialTheme.typography.bodySmall, color = SkyjumpersTextSecondary)
+                                    Text(
+                                        "I confirm parental consent is granted",
+                                        fontSize = 12.sp,
+                                        color = SkyjumpersTextSecondaryGrey
+                                    )
                                 }
                             }
                         }
@@ -298,43 +324,76 @@ fun ProfileScreen(
             }
 
             // Family Members Section
-            Card(
+            Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = SkyjumpersCardSurface),
-                border = androidx.compose.foundation.BorderStroke(1.dp, SkyjumpersCardBorder)
+                shape = RoundedCornerShape(28.dp),
+                color = SkyjumpersSurfaceWhite,
+                border = androidx.compose.foundation.BorderStroke(1.dp, SkyjumpersLayerNeutralBorder)
             ) {
-                Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Family Members (Children)", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = SkyjumpersTextPrimary)
+                        Text(
+                            "Family Members (Children)",
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = SkyjumpersTextBlack
+                        )
                         IconButton(onClick = { showAddChildDialog = true }) {
-                            Icon(Icons.Default.Add, contentDescription = "Add Child", tint = SkyjumpersElectricBlue)
+                            Icon(
+                                Icons.Default.Add,
+                                contentDescription = "Add Child",
+                                tint = SkyjumpersTextBlack
+                            )
                         }
                     }
 
                     if (state.familyMembers.isEmpty()) {
-                        Text("No children profiles added yet.", style = MaterialTheme.typography.bodySmall, color = SkyjumpersTextSecondary)
+                        Text(
+                            "No children profiles added yet.",
+                            fontSize = 13.sp,
+                            color = SkyjumpersTextSecondaryGrey
+                        )
                     } else {
                         state.familyMembers.forEach { child ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(SkyjumpersMidnightNavy)
-                                    .padding(12.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(16.dp),
+                                color = SkyjumpersLayerNeutral
                             ) {
-                                Column {
-                                    Text(child.name, fontWeight = FontWeight.SemiBold, color = SkyjumpersTextPrimary)
-                                    Text("DOB: ${child.date_of_birth} (${child.age} yrs)", style = MaterialTheme.typography.bodySmall, color = SkyjumpersTextSecondary)
-                                }
-                                IconButton(onClick = { child.id?.let { viewModel.deleteFamilyMember(it) } }) {
-                                    Icon(Icons.Default.Delete, contentDescription = "Remove Child", tint = MaterialTheme.colorScheme.error)
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(12.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column {
+                                        Text(
+                                            child.name,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 14.sp,
+                                            color = SkyjumpersTextBlack
+                                        )
+                                        Text(
+                                            "DOB: ${child.date_of_birth} (${child.age} yrs)",
+                                            fontSize = 12.sp,
+                                            color = SkyjumpersTextSecondaryGrey
+                                        )
+                                    }
+                                    IconButton(onClick = { child.id?.let { viewModel.deleteFamilyMember(it) } }) {
+                                        Icon(
+                                            Icons.Default.Delete,
+                                            contentDescription = "Remove Child",
+                                            tint = MaterialTheme.colorScheme.error
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -343,14 +402,22 @@ fun ProfileScreen(
             }
 
             // Legal & Data Privacy Section
-            Card(
+            Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = SkyjumpersCardSurface),
-                border = androidx.compose.foundation.BorderStroke(1.dp, SkyjumpersCardBorder)
+                shape = RoundedCornerShape(28.dp),
+                color = SkyjumpersSurfaceWhite,
+                border = androidx.compose.foundation.BorderStroke(1.dp, SkyjumpersLayerNeutralBorder)
             ) {
-                Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("Data & Privacy", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = SkyjumpersTextPrimary)
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        "Data & Privacy",
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = SkyjumpersTextBlack
+                    )
 
                     SkyjumpersSecondaryButton(
                         text = "Export My Data (GDPR)",
@@ -367,8 +434,17 @@ fun ProfileScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(100.dp))
         }
+
+        SkyjumpersFloatingBottomNav(
+            currentRoute = "profile",
+            onNavigateToHome = onNavigateBack,
+            onNavigateToWallet = {},
+            onNavigateToBookings = {},
+            onNavigateToProfile = {},
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 
     if (showAddChildDialog) {
@@ -392,9 +468,9 @@ fun AddChildDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        containerColor = SkyjumpersCardSurface,
-        titleContentColor = SkyjumpersTextPrimary,
-        textContentColor = SkyjumpersTextSecondary,
+        containerColor = SkyjumpersSurfaceWhite,
+        titleContentColor = SkyjumpersTextBlack,
+        textContentColor = SkyjumpersTextSecondaryGrey,
         title = { Text("Add Child Profile", fontWeight = FontWeight.Bold) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -411,10 +487,14 @@ fun AddChildDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = { onAdd(name, dob) }) { Text("Add", color = SkyjumpersElectricBlue, fontWeight = FontWeight.Bold) }
+            TextButton(onClick = { onAdd(name, dob) }) {
+                Text("Add", color = SkyjumpersTextBlack, fontWeight = FontWeight.Bold)
+            }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel", color = SkyjumpersTextSecondary) }
+            TextButton(onClick = onDismiss) {
+                Text("Cancel", color = SkyjumpersTextSecondaryGrey)
+            }
         }
     )
 }

@@ -10,7 +10,6 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.curiouskids.cashapp.core.designsystem.theme.*
 
@@ -27,16 +26,16 @@ fun SkyjumpersTextField(
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            label = { Text(label, color = SkyjumpersTextSecondary) },
+            label = { Text(label, color = SkyjumpersTextSecondaryGrey) },
             isError = isError,
             shape = RoundedCornerShape(16.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = SkyjumpersCardSurface,
-                unfocusedContainerColor = SkyjumpersCardSurface,
-                focusedBorderColor = SkyjumpersElectricBlue,
-                unfocusedBorderColor = SkyjumpersCardBorder,
-                focusedTextColor = SkyjumpersTextPrimary,
-                unfocusedTextColor = SkyjumpersTextPrimary
+                focusedContainerColor = SkyjumpersSurfaceWhite,
+                unfocusedContainerColor = SkyjumpersSurfaceWhite,
+                focusedBorderColor = SkyjumpersTextBlack,
+                unfocusedBorderColor = SkyjumpersLayerNeutralBorder,
+                focusedTextColor = SkyjumpersTextBlack,
+                unfocusedTextColor = SkyjumpersTextBlack
             ),
             modifier = Modifier.fillMaxWidth()
         )

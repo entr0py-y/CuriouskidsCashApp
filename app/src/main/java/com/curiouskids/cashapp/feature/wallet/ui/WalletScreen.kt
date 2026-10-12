@@ -1,5 +1,6 @@
 package com.curiouskids.cashapp.feature.wallet.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -25,9 +26,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.curiouskids.cashapp.core.common.formatPaiseToRupees
+import com.curiouskids.cashapp.core.designsystem.component.SkyjumpersFloatingBottomNav
 import com.curiouskids.cashapp.core.designsystem.theme.*
-import com.curiouskids.cashapp.feature.home.ui.CircularActionButton
-import com.curiouskids.cashapp.feature.home.ui.SkyjumpersBottomNav
 import com.curiouskids.cashapp.feature.wallet.domain.TransactionDto
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,87 +40,113 @@ fun WalletScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
 
-    Scaffold(
-        containerColor = VaultaNavyBackground,
-        topBar = {
-            TopAppBar(
-                title = { Text("My Wallet", color = VaultaTextPrimary, fontWeight = FontWeight.Bold) },
-                navigationIcon = {
-                    IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = VaultaTextPrimary)
-                    }
-                },
-                actions = {
-                    IconButton(onClick = onNavigateToHistory) {
-                        Icon(Icons.Default.History, contentDescription = "History", tint = VaultaTextPrimary)
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = VaultaNavyBackground)
-            )
-        },
-        bottomBar = {
-            SkyjumpersBottomNav(
-                currentRoute = "wallet",
-                onNavigateToHome = onNavigateBack,
-                onNavigateToWallet = {},
-                onNavigateToBookings = {},
-                onNavigateToProfile = {}
-            )
-        }
-    ) { padding ->
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(SkyjumpersOffWhite)
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .statusBarsPadding()
                 .padding(horizontal = 20.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Spacer(modifier = Modifier.height(4.dp))
+            // Header Bar
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = onNavigateBack) {
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = SkyjumpersTextBlack
+                    )
+                }
+                Text(
+                    "My Wallet",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = SkyjumpersTextBlack
+                )
+                IconButton(onClick = onNavigateToHistory) {
+                    Icon(
+                        Icons.Default.History,
+                        contentDescription = "History",
+                        tint = SkyjumpersTextBlack
+                    )
+                }
+            }
 
-            // Total Balance Card (Vaulta Dark Navy Style)
-            Card(
+            // Total Balance Card (Reference Stacked Dark Charcoal Card)
+            Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = VaultaCardSurface),
-                border = androidx.compose.foundation.BorderStroke(1.dp, VaultaCardBorder)
+                shape = RoundedCornerShape(28.dp),
+                color = SkyjumpersCharcoalCard
             ) {
                 Column(
                     modifier = Modifier.padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Total Available Balance", style = MaterialTheme.typography.bodyMedium, color = VaultaTextMuted)
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        "Total Available Balance",
+                        fontSize = 13.sp,
+                        color = Color.White.copy(alpha = 0.7f),
+                        fontWeight = FontWeight.Medium
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
                     Text(
                         text = formatPaiseToRupees(state.totalBalancePaise),
-                        style = MaterialTheme.typography.displaySmall,
+                        fontSize = 34.sp,
                         fontWeight = FontWeight.ExtraBold,
-                        color = VaultaTextPrimary
+                        color = Color.White
                     )
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceEvenly
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        CircularActionButton(
-                            icon = Icons.Default.Add,
-                            label = "Recharge",
+                        Button(
                             onClick = onNavigateToAddMoney,
-                            containerColor = VaultaNavyBackground,
-                            contentColor = VaultaElectricBlue
-                        )
-                        CircularActionButton(
-                            icon = Icons.Default.History,
-                            label = "History",
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(44.dp),
+                            shape = RoundedCornerShape(22.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White,
+                                contentColor = SkyjumpersTextBlack
+                            )
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Recharge", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                        }
+
+                        Button(
                             onClick = onNavigateToHistory,
-                            containerColor = VaultaNavyBackground,
-                            contentColor = VaultaElectricBlue
-                        )
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(44.dp),
+                            shape = RoundedCornerShape(22.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White.copy(alpha = 0.15f),
+                                contentColor = Color.White
+                            )
+                        ) {
+                            Icon(Icons.Default.History, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("History", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(20.dp))
-                    HorizontalDivider(color = VaultaCardBorder)
+                    HorizontalDivider(color = Color.White.copy(alpha = 0.15f))
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Row(
@@ -129,59 +155,94 @@ fun WalletScreen(
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.ArrowDownward, contentDescription = null, tint = Color(0xFF10B981), modifier = Modifier.size(16.dp))
+                                Icon(
+                                    Icons.Default.ArrowDownward,
+                                    contentDescription = null,
+                                    tint = Color(0xFF34D399),
+                                    modifier = Modifier.size(14.dp)
+                                )
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Main Balance", style = MaterialTheme.typography.labelSmall, color = VaultaTextMuted)
+                                Text("Main Balance", fontSize = 11.sp, color = Color.White.copy(alpha = 0.7f))
                             }
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 formatPaiseToRupees(state.mainBalancePaise),
                                 fontWeight = FontWeight.Bold,
-                                color = VaultaTextPrimary
+                                color = Color.White,
+                                fontSize = 15.sp
                             )
                         }
 
-                        VerticalDivider(modifier = Modifier.height(36.dp), color = VaultaCardBorder)
+                        VerticalDivider(
+                            modifier = Modifier.height(32.dp),
+                            color = Color.White.copy(alpha = 0.15f)
+                        )
 
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(Icons.Default.ArrowUpward, contentDescription = null, tint = VaultaElectricBlue, modifier = Modifier.size(16.dp))
+                                Icon(
+                                    Icons.Default.ArrowUpward,
+                                    contentDescription = null,
+                                    tint = SkyjumpersElectricBlue,
+                                    modifier = Modifier.size(14.dp)
+                                )
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text("Bonus Balance", style = MaterialTheme.typography.labelSmall, color = VaultaTextMuted)
+                                Text("Bonus Balance", fontSize = 11.sp, color = Color.White.copy(alpha = 0.7f))
                             }
-                            Spacer(modifier = Modifier.height(4.dp))
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 formatPaiseToRupees(state.bonusBalancePaise),
                                 fontWeight = FontWeight.Bold,
-                                color = VaultaTextPrimary
+                                color = Color.White,
+                                fontSize = 15.sp
                             )
                         }
                     }
                 }
             }
 
-            // Recent Transactions Section Header
+            // Recent Transactions Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Recent Transactions", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = VaultaTextPrimary)
+                Text(
+                    "Recent Transactions",
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = SkyjumpersTextBlack
+                )
                 TextButton(onClick = onNavigateToHistory) {
-                    Text("View All", color = VaultaElectricBlue, style = MaterialTheme.typography.labelLarge)
+                    Text("View All", color = SkyjumpersElectricBlue, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                 }
             }
 
             if (state.transactions.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxWidth().height(120.dp),
-                    contentAlignment = Alignment.Center
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    color = SkyjumpersSurfaceWhite,
+                    border = BorderStroke(1.dp, SkyjumpersLayerNeutralBorder)
                 ) {
-                    Text("No transactions yet.", color = VaultaTextMuted, style = MaterialTheme.typography.bodyMedium)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "No transactions yet. Recharge your wallet to get started!",
+                            color = SkyjumpersTextSecondaryGrey,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
                 }
             } else {
                 LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.weight(1f)
                 ) {
                     items(state.transactions.take(5)) { txn ->
                         TransactionRow(txn)
@@ -189,25 +250,36 @@ fun WalletScreen(
                 }
             }
         }
+
+        SkyjumpersFloatingBottomNav(
+            currentRoute = "wallet",
+            onNavigateToHome = onNavigateBack,
+            onNavigateToWallet = {},
+            onNavigateToBookings = {},
+            onNavigateToProfile = {},
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
     }
 }
 
 @Composable
 fun TransactionRow(txn: TransactionDto) {
-    Card(
+    Surface(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = VaultaCardSurface),
-        shape = RoundedCornerShape(16.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, VaultaCardBorder)
+        color = SkyjumpersSurfaceWhite,
+        shape = RoundedCornerShape(20.dp),
+        border = androidx.compose.foundation.BorderStroke(1.dp, SkyjumpersLayerNeutralBorder)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             val isCredit = txn.type in listOf("TOPUP", "REVERSAL")
-            val iconBg = if (isCredit) Color(0xFF064E3B) else Color(0xFF451A03)
-            val iconColor = if (isCredit) Color(0xFF34D399) else Color(0xFFF87171)
+            val iconBg = if (isCredit) Color(0xFFDCFCE7) else Color(0xFFFEE2E2)
+            val iconColor = if (isCredit) Color(0xFF059669) else Color(0xFFDC2626)
             val iconVector = if (isCredit) Icons.Default.ArrowDownward else Icons.Default.ArrowUpward
 
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -218,12 +290,26 @@ fun TransactionRow(txn: TransactionDto) {
                         .clip(CircleShape)
                         .background(iconBg)
                 ) {
-                    Icon(iconVector, contentDescription = null, tint = iconColor, modifier = Modifier.size(20.dp))
+                    Icon(
+                        iconVector,
+                        contentDescription = null,
+                        tint = iconColor,
+                        modifier = Modifier.size(18.dp)
+                    )
                 }
-                Spacer(modifier = Modifier.width(14.dp))
+                Spacer(modifier = Modifier.width(12.dp))
                 Column {
-                    Text(txn.source_or_reason, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, color = VaultaTextPrimary)
-                    Text(txn.created_at.take(10), style = MaterialTheme.typography.bodySmall, color = VaultaTextMuted)
+                    Text(
+                        txn.source_or_reason,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        color = SkyjumpersTextBlack
+                    )
+                    Text(
+                        txn.created_at.take(10),
+                        fontSize = 12.sp,
+                        color = SkyjumpersTextSecondaryGrey
+                    )
                 }
             }
 
@@ -232,13 +318,14 @@ fun TransactionRow(txn: TransactionDto) {
             Column(horizontalAlignment = Alignment.End) {
                 Text(
                     text = "$prefix${formatPaiseToRupees(txn.amount_paise)}",
-                    fontWeight = FontWeight.Bold,
-                    color = VaultaTextPrimary
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = 15.sp,
+                    color = if (isCredit) Color(0xFF059669) else SkyjumpersTextBlack
                 )
                 Text(
                     text = if (isCredit) "Credit" else "Debit",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = VaultaTextMuted
+                    fontSize = 11.sp,
+                    color = SkyjumpersTextSecondaryGrey
                 )
             }
         }

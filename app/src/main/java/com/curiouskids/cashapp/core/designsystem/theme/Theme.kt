@@ -2,40 +2,40 @@ package com.curiouskids.cashapp.core.designsystem.theme
 
 import android.app.Activity
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val VaultaColorScheme = darkColorScheme(
+private val SkyjumpersLightColorScheme = lightColorScheme(
     primary = SkyjumpersPrimary,
     secondary = SkyjumpersSecondary,
     background = SkyjumpersBackground,
     surface = SkyjumpersSurface,
-    surfaceVariant = VaultaCardBorder,
-    onPrimary = VaultaTextPrimary,
-    onBackground = VaultaTextPrimary,
-    onSurface = VaultaTextPrimary,
-    onSurfaceVariant = VaultaTextMuted,
+    surfaceVariant = SkyjumpersLayerNeutral,
+    onPrimary = SkyjumpersSurfaceWhite,
+    onBackground = SkyjumpersTextBlack,
+    onSurface = SkyjumpersTextBlack,
+    onSurfaceVariant = SkyjumpersTextSecondaryGrey,
     error = SkyjumpersError
 )
 
 @Composable
 fun SkyjumpersTheme(
-    darkTheme: Boolean = true,
+    darkTheme: Boolean = false,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = VaultaColorScheme
+    val colorScheme = SkyjumpersLightColorScheme
 
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = VaultaNavyBackground.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+            window.statusBarColor = SkyjumpersOffWhite.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
         }
     }
 
