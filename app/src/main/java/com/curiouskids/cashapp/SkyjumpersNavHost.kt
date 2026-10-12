@@ -56,6 +56,7 @@ fun SkyjumpersNavHost(
             val homeViewModel: HomeViewModel = hiltViewModel()
             HomeScreen(
                 viewModel = homeViewModel,
+                usbViewModel = usbViewModel,
                 onNavigateToRecharge = { navController.navigate("wallet_recharge") },
                 onNavigateToHistory = { navController.navigate("wallet_history") },
                 onNavigateToBookings = { navController.navigate("branches") },

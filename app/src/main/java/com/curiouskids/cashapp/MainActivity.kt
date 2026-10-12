@@ -76,14 +76,12 @@ class MainActivity : ComponentActivity() {
             if (appState is AppState.Ready) {
                 val startDest = (appState as AppState.Ready).startDestination
                 SkyjumpersTheme {
-                    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                        SkyjumpersNavHost(
-                            usbViewModel = viewModel,
-                            onRequestUsbPermission = { device -> requestUsbPermission(device) },
-                            startDestination = startDest,
-                            modifier = Modifier.padding(innerPadding)
-                        )
-                    }
+                    SkyjumpersNavHost(
+                        usbViewModel = viewModel,
+                        onRequestUsbPermission = { device -> requestUsbPermission(device) },
+                        startDestination = startDest,
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
             }
         }

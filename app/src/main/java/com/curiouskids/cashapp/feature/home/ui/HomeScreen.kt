@@ -2,6 +2,7 @@ package com.curiouskids.cashapp.feature.home.ui
 
 import android.app.Activity
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -43,10 +44,12 @@ import com.curiouskids.cashapp.core.designsystem.component.SkyjumpersFloatingBot
 import com.curiouskids.cashapp.core.designsystem.component.SkyjumpersSecondaryButton
 import com.curiouskids.cashapp.core.designsystem.theme.*
 import com.curiouskids.cashapp.feature.home.domain.QrState
+import com.curiouskids.cashapp.ui.UsbViewModel
 
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
+    usbViewModel: UsbViewModel? = null,
     onNavigateToRecharge: () -> Unit,
     onNavigateToHistory: () -> Unit,
     onNavigateToBookings: () -> Unit,
@@ -55,6 +58,22 @@ fun HomeScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+
+    // Automatic Direct Cash Deposit Handler (no QR scan needed)
+    usbViewModel?.let { usbVm ->
+        val usbLogs = usbVm.logs
+        LaunchedEffect(usbLogs.size) {
+            if (usbLogs.isNotEmpty()) {
+                val latestLog = usbLogs.firstOrNull() ?: ""
+                val cashAmountStr = latestLog.replace("₹", "").trim()
+                val cashAmount = cashAmountStr.toLongOrNull()
+                if (cashAmount != null && cashAmount > 0) {
+                    viewModel.addCashToWallet(cashAmount)
+                    Toast.makeText(context, "💵 Cash Accepted: ₹$cashAmount Deposited to Wallet!", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
 
     // Screen Brightness, KeepScreenOn, and FLAG_SECURE Controller for QR
     DisposableEffect(state.isQrVisible) {
@@ -92,8 +111,6 @@ fun HomeScreen(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
-
             // Reference Style Top Bar Header
             HomeHeader(
                 profileName = state.profileName,
@@ -101,17 +118,17 @@ fun HomeScreen(
                 onProfileClick = onNavigateToProfile
             )
 
-            // Greeting Section (Reference Typography)
+            // Greeting Section
             GreetingSection(profileName = state.profileName)
 
-            // Filter Pills Row (Reference Style)
+            // Filter Pills Row
             FilterPillsRow(
                 onNavigateToBookings = onNavigateToBookings,
                 onNavigateToOffers = onNavigateToOffers,
                 onNavigateToRecharge = onNavigateToRecharge
             )
 
-            // Total Balance Card (Reference Stacked Dark Contrast Card)
+            // Total Balance Card
             VaultaBalanceCard(
                 state = state,
                 onToggleVisibility = viewModel::toggleQrVisibility,
@@ -156,7 +173,9 @@ fun HomeHeader(
     onProfileClick: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -211,17 +230,17 @@ fun HomeHeader(
 @Composable
 fun GreetingSection(profileName: String) {
     val firstName = profileName.split(" ").firstOrNull() ?: "Explorer"
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Text(
             text = "Hello, $firstName!",
-            fontSize = 32.sp,
+            fontSize = 30.sp,
             fontWeight = FontWeight.ExtraBold,
             color = SkyjumpersTextBlack,
             letterSpacing = (-0.5).sp
         )
         Text(
             text = "Welcome to your arcade & play hub.",
-            fontSize = 15.sp,
+            fontSize = 14.sp,
             color = SkyjumpersTextSecondaryGrey,
             fontWeight = FontWeight.Medium
         )
@@ -273,15 +292,15 @@ fun FilterPill(
         shape = RoundedCornerShape(50),
         color = backgroundColor,
         border = BorderStroke(1.dp, borderColor),
-        modifier = Modifier.height(38.dp)
+        modifier = Modifier.height(36.dp)
     ) {
         Box(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
             contentAlignment = Alignment.Center
         ) {
             Text(
                 text = text,
-                fontSize = 13.sp,
+                fontSize = 12.sp,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                 color = textColor
             )
@@ -310,7 +329,6 @@ fun VaultaBalanceCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Top Inner Badge Pill (Reference style)
                 Surface(
                     shape = RoundedCornerShape(50),
                     color = Color.White.copy(alpha = 0.15f)
@@ -358,7 +376,6 @@ fun VaultaBalanceCard(
                 )
             }
 
-            // Action Pills inside Card
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -409,7 +426,7 @@ fun VaultaQrPassCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(28.dp),
         color = SkyjumpersSurfaceWhite,
-        border = androidx.compose.foundation.BorderStroke(1.dp, SkyjumpersLayerNeutralBorder)
+        border = BorderStroke(1.dp, SkyjumpersLayerNeutralBorder)
     ) {
         Column(
             modifier = Modifier.padding(22.dp),
@@ -436,12 +453,16 @@ fun VaultaQrPassCard(
                     )
                 }
 
-                TextButton(onClick = onToggleVisibility) {
-                    Text(
-                        text = if (state.isQrVisible) "Hide Pass" else "Reveal Pass",
-                        color = SkyjumpersElectricBlue,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp
+                // Eyeball toggle button (Crossed when hidden, normal when visible)
+                IconButton(
+                    onClick = onToggleVisibility,
+                    modifier = Modifier.size(36.dp)
+                ) {
+                    Icon(
+                        imageVector = if (state.isQrVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                        contentDescription = if (state.isQrVisible) "Hide Pass" else "Reveal Pass",
+                        tint = SkyjumpersTextBlack,
+                        modifier = Modifier.size(22.dp)
                     )
                 }
             }
@@ -449,6 +470,7 @@ fun VaultaQrPassCard(
             Spacer(modifier = Modifier.height(16.dp))
 
             if (!state.isQrVisible) {
+                // Hidden Card Container with Security Shield Icon in Center (Clickable)
                 Box(
                     modifier = Modifier
                         .fillMaxWidth(0.9f)
@@ -456,22 +478,24 @@ fun VaultaQrPassCard(
                         .clip(RoundedCornerShape(20.dp))
                         .background(SkyjumpersLayerNeutral)
                         .border(1.dp, SkyjumpersLayerNeutralBorder, RoundedCornerShape(20.dp))
+                        .clickable(onClick = onToggleVisibility)
                         .padding(20.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Box(
                             modifier = Modifier
-                                .size(52.dp)
+                                .size(56.dp)
                                 .clip(CircleShape)
-                                .background(SkyjumpersSurfaceWhite),
+                                .background(SkyjumpersSurfaceWhite)
+                                .border(1.dp, SkyjumpersLayerNeutralBorder, CircleShape),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Default.Security,
-                                contentDescription = null,
+                                imageVector = Icons.Default.Security, // Security Shield Icon
+                                contentDescription = "Security Shield",
                                 tint = SkyjumpersTextBlack,
-                                modifier = Modifier.size(26.dp)
+                                modifier = Modifier.size(28.dp)
                             )
                         }
                         Spacer(modifier = Modifier.height(12.dp))
@@ -483,7 +507,7 @@ fun VaultaQrPassCard(
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
-                            text = "Tap Reveal Pass to generate your dynamic scannable QR token.",
+                            text = "Tap the eye button above or touch here to reveal your scannable QR pass.",
                             textAlign = TextAlign.Center,
                             color = SkyjumpersTextSecondaryGrey,
                             fontSize = 12.sp
@@ -567,7 +591,7 @@ fun QuickActionsSection(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(28.dp),
         color = SkyjumpersSurfaceWhite,
-        border = androidx.compose.foundation.BorderStroke(1.dp, SkyjumpersLayerNeutralBorder)
+        border = BorderStroke(1.dp, SkyjumpersLayerNeutralBorder)
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(
