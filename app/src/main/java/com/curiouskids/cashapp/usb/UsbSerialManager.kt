@@ -175,34 +175,41 @@ class UsbSerialManager(private val context: Context) {
             val buffer = ByteArray(1024)
             val dataBuffer = StringBuilder()
 
-            while (usbSerialPort != null && usbSerialPort?.isOpen == true) {
+            while (usbSerialPort != null && usbSerialPort?.isOpen == true && _isConnected.value) {
                 try {
-                    val len = usbSerialPort?.read(buffer, 1000) ?: 0
+                    val len = try {
+                        usbSerialPort?.read(buffer, 500) ?: 0
+                    } catch (e: IOException) {
+                        // Read timeout is normal when no data is sent. Do NOT disconnect on timeout!
+                        0
+                    }
+
                     if (len > 0) {
                         val data = String(buffer, 0, len)
-                        Log.d("UsbSerialManager", "Hardware USB Raw Data: $data")
+                        Log.d("UsbSerialManager", "Hardware USB Raw Bytes ($len): '$data'")
                         dataBuffer.append(data)
                         parseAndEmitDataBuffer(dataBuffer)
                     }
-                } catch (e: IOException) {
-                    Log.e("UsbSerialManager", "Read error: ${e.message}")
-                    disconnect()
-                    break
+                } catch (e: Exception) {
+                    Log.e("UsbSerialManager", "Unexpected error in USB read loop: ${e.message}")
                 }
-                delay(100)
+                delay(50)
             }
         }
     }
 
     private fun parseAndEmitDataBuffer(dataBuffer: StringBuilder) {
-        // Flexible Cash Acceptor Parser:
-        // 1. Check for structured packets: AA<number>BB (e.g. AA100BB, AA200BB, AA500BB)
+        val currentStr = dataBuffer.toString()
+        Log.d("UsbSerialManager", "Parsing Data Buffer: '$currentStr'")
+
+        // 1. Structured AA<number>BB (e.g. AA100BB, AA200BB, AA500BB)
         val structuredRegex = Regex("AA(\\d+)BB")
         var match = structuredRegex.find(dataBuffer)
         while (match != null) {
             val valueStr = match.groupValues[1]
             val valueLong = valueStr.toLongOrNull()
             if (valueLong != null && valueLong > 0) {
+                Log.d("UsbSerialManager", "SUCCESS MATCH AA..BB: $valueLong")
                 emitValueToUi(valueStr)
                 _cashNoteAcceptedFlow.tryEmit(valueLong)
             }
@@ -210,25 +217,26 @@ class UsbSerialManager(private val context: Context) {
             match = structuredRegex.find(dataBuffer)
         }
 
-        // 2. Check for line-delimited or plain numbers (e.g. 100\n, 200\r\n, 500)
-        val genericRegex = Regex("(?:^|[^0-9])(\\d{1,5})(?:[^0-9]|$)")
+        // 2. Standalone Cash Denomination Values (10, 20, 50, 100, 200, 500, 2000)
+        val genericRegex = Regex("\\b(\\d{2,4})\\b")
         var genMatch = genericRegex.find(dataBuffer)
         while (genMatch != null) {
             val valueStr = genMatch.groupValues[1]
             val valueLong = valueStr.toLongOrNull()
             if (valueLong != null && valueLong in listOf(10L, 20L, 50L, 100L, 200L, 500L, 2000L)) {
+                Log.d("UsbSerialManager", "SUCCESS MATCH NOTE: $valueLong")
                 emitValueToUi(valueStr)
                 _cashNoteAcceptedFlow.tryEmit(valueLong)
                 dataBuffer.delete(0, genMatch.range.last + 1)
                 genMatch = genericRegex.find(dataBuffer)
             } else {
-                break
+                genMatch = genMatch.next()
             }
         }
 
         // Prevent memory overflow
-        if (dataBuffer.length > 2048) {
-            dataBuffer.delete(0, 1024)
+        if (dataBuffer.length > 1024) {
+            dataBuffer.delete(0, 512)
         }
     }
 
