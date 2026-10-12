@@ -42,6 +42,9 @@ class UsbSerialManager(private val context: Context) {
     private val _logs = MutableSharedFlow<String>(replay = 50)
     val logs = _logs.asSharedFlow()
 
+    private val _cashNoteAcceptedFlow = MutableSharedFlow<Long>(replay = 0, extraBufferCapacity = 10)
+    val cashNoteAcceptedFlow: MutableSharedFlow<Long> = _cashNoteAcceptedFlow
+
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     private val usbReceiver = object : BroadcastReceiver() {
@@ -49,10 +52,10 @@ class UsbSerialManager(private val context: Context) {
             when (intent.action) {
                 UsbManager.ACTION_USB_DEVICE_ATTACHED -> {
                     updateAttachmentStatus()
+                    autoConnectIfPossible()
                 }
                 UsbManager.ACTION_USB_DEVICE_DETACHED -> {
                     val device = intent.getParcelableExtra<UsbDevice>(UsbManager.EXTRA_DEVICE)
-                    // If the currently connected device is unplugged, disconnect it
                     if (usbSerialPort?.device?.deviceId == device?.deviceId) {
                         disconnect()
                     }
@@ -69,10 +72,19 @@ class UsbSerialManager(private val context: Context) {
         }
         context.registerReceiver(usbReceiver, filter)
         updateAttachmentStatus()
+        autoConnectIfPossible()
     }
 
     private fun updateAttachmentStatus() {
         _isDeviceAttached.value = findDevice() != null
+    }
+
+    private fun autoConnectIfPossible() {
+        val device = findDevice()
+        if (device != null && hasPermission(device) && !_isConnected.value) {
+            Log.d("UsbSerialManager", "Auto-connecting to attached USB device: ${device.deviceName}")
+            connect(device)
+        }
     }
 
     fun findDevice(): UsbDevice? {
@@ -105,10 +117,15 @@ class UsbSerialManager(private val context: Context) {
         val port = driver.ports[0]
         try {
             port.open(connection)
-            port.setParameters(115200, UsbSerialPort.DATABITS_8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE)
+            // Try 115200 baud, fallback to 9600 if standard cash machine
+            try {
+                port.setParameters(115200, UsbSerialPort.DATABITS_8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE)
+            } catch (e: Exception) {
+                port.setParameters(9600, UsbSerialPort.DATABITS_8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE)
+            }
             usbSerialPort = port
             _isConnected.value = true
-            Log.d("UsbSerialManager", "Connected to ${device.deviceName} at 115200 baud.")
+            Log.d("UsbSerialManager", "Connected to USB Hardware ${device.deviceName}")
             startReadingFromUsbPort()
         } catch (e: IOException) {
             Log.e("UsbSerialManager", "Error opening port: ${e.message}")
@@ -132,26 +149,14 @@ class UsbSerialManager(private val context: Context) {
                 val inputStream: InputStream = sock.getInputStream()
                 val buffer = ByteArray(1024)
                 val dataBuffer = StringBuilder()
-                val regex = Regex("AA(\\d+)BB")
 
                 while (sock.isConnected && !sock.isClosed) {
                     val len = inputStream.read(buffer)
                     if (len > 0) {
                         val data = String(buffer, 0, len)
-                        Log.d("UsbSerialManager", "Bridge Raw Hardware Data: $data")
+                        Log.d("UsbSerialManager", "Bridge Raw Data: $data")
                         dataBuffer.append(data)
-
-                        var match = regex.find(dataBuffer)
-                        while (match != null) {
-                            val value = match.groupValues[1]
-                            emitValueToUi(value)
-                            dataBuffer.delete(0, match.range.last + 1)
-                            match = regex.find(dataBuffer)
-                        }
-
-                        if (dataBuffer.length > 2048) {
-                            dataBuffer.delete(0, 1024)
-                        }
+                        parseAndEmitDataBuffer(dataBuffer)
                     } else if (len == -1) {
                         break
                     }
@@ -169,28 +174,15 @@ class UsbSerialManager(private val context: Context) {
         readJob = scope.launch {
             val buffer = ByteArray(1024)
             val dataBuffer = StringBuilder()
-            val regex = Regex("AA(\\d+)BB")
 
             while (usbSerialPort != null && usbSerialPort?.isOpen == true) {
                 try {
                     val len = usbSerialPort?.read(buffer, 1000) ?: 0
                     if (len > 0) {
                         val data = String(buffer, 0, len)
-                        Log.d("UsbSerialManager", "Raw Data: $data")
-                        
+                        Log.d("UsbSerialManager", "Hardware USB Raw Data: $data")
                         dataBuffer.append(data)
-                        
-                        var match = regex.find(dataBuffer)
-                        while (match != null) {
-                            val value = match.groupValues[1]
-                            emitValueToUi(value)
-                            dataBuffer.delete(0, match.range.last + 1)
-                            match = regex.find(dataBuffer)
-                        }
-                        
-                        if (dataBuffer.length > 2048) {
-                            dataBuffer.delete(0, 1024)
-                        }
+                        parseAndEmitDataBuffer(dataBuffer)
                     }
                 } catch (e: IOException) {
                     Log.e("UsbSerialManager", "Read error: ${e.message}")
@@ -199,6 +191,44 @@ class UsbSerialManager(private val context: Context) {
                 }
                 delay(100)
             }
+        }
+    }
+
+    private fun parseAndEmitDataBuffer(dataBuffer: StringBuilder) {
+        // Flexible Cash Acceptor Parser:
+        // 1. Check for structured packets: AA<number>BB (e.g. AA100BB, AA200BB, AA500BB)
+        val structuredRegex = Regex("AA(\\d+)BB")
+        var match = structuredRegex.find(dataBuffer)
+        while (match != null) {
+            val valueStr = match.groupValues[1]
+            val valueLong = valueStr.toLongOrNull()
+            if (valueLong != null && valueLong > 0) {
+                emitValueToUi(valueStr)
+                _cashNoteAcceptedFlow.tryEmit(valueLong)
+            }
+            dataBuffer.delete(0, match.range.last + 1)
+            match = structuredRegex.find(dataBuffer)
+        }
+
+        // 2. Check for line-delimited or plain numbers (e.g. 100\n, 200\r\n, 500)
+        val genericRegex = Regex("(?:^|[^0-9])(\\d{1,5})(?:[^0-9]|$)")
+        var genMatch = genericRegex.find(dataBuffer)
+        while (genMatch != null) {
+            val valueStr = genMatch.groupValues[1]
+            val valueLong = valueStr.toLongOrNull()
+            if (valueLong != null && valueLong in listOf(10L, 20L, 50L, 100L, 200L, 500L, 2000L)) {
+                emitValueToUi(valueStr)
+                _cashNoteAcceptedFlow.tryEmit(valueLong)
+                dataBuffer.delete(0, genMatch.range.last + 1)
+                genMatch = genericRegex.find(dataBuffer)
+            } else {
+                break
+            }
+        }
+
+        // Prevent memory overflow
+        if (dataBuffer.length > 2048) {
+            dataBuffer.delete(0, 1024)
         }
     }
 

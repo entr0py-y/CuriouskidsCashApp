@@ -21,8 +21,16 @@ class UsbViewModel @Inject constructor(
     val isConnected: StateFlow<Boolean> = usbSerialManager.isConnected
     val isDeviceAttached: StateFlow<Boolean> = usbSerialManager.isDeviceAttached
     val isBridgeConnected: StateFlow<Boolean> = usbSerialManager.isBridgeConnected
+    val cashNoteAcceptedFlow = usbSerialManager.cashNoteAcceptedFlow
 
     init {
+        viewModelScope.launch {
+            val device = usbSerialManager.findDevice()
+            if (device != null && usbSerialManager.hasPermission(device) && !usbSerialManager.isConnected.value) {
+                usbSerialManager.connect(device)
+            }
+        }
+
         viewModelScope.launch {
             usbSerialManager.logs.collect { message ->
                 // Ensure we update the state on the Main thread for Compose

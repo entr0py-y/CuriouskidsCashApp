@@ -61,13 +61,9 @@ fun HomeScreen(
 
     // Automatic Direct Cash Deposit Handler (no QR scan needed)
     usbViewModel?.let { usbVm ->
-        val usbLogs = usbVm.logs
-        LaunchedEffect(usbLogs.size) {
-            if (usbLogs.isNotEmpty()) {
-                val latestLog = usbLogs.firstOrNull() ?: ""
-                val cashAmountStr = latestLog.replace("₹", "").trim()
-                val cashAmount = cashAmountStr.toLongOrNull()
-                if (cashAmount != null && cashAmount > 0) {
+        LaunchedEffect(Unit) {
+            usbVm.cashNoteAcceptedFlow.collect { cashAmount ->
+                if (cashAmount > 0) {
                     viewModel.addCashToWallet(cashAmount)
                     Toast.makeText(context, "💵 Cash Accepted: ₹$cashAmount Deposited to Wallet!", Toast.LENGTH_LONG).show()
                 }
