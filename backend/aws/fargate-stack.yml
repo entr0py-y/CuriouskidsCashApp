@@ -1,0 +1,132 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Skyjumpers Cash App Backend - AWS ECS Fargate Infrastructure'
+
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: Select your VPC (Default VPC is fine)
+
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Select at least 2 public Subnets from your VPC
+
+  ImageUri:
+    Type: String
+    Description: Full URI of your Docker image in ECR (e.g. <account_id>.dkr.ecr.<region>.amazonaws.com/skyjumpers-backend:latest)
+
+  DatabaseUrl:
+    Type: String
+    NoEcho: true
+    Description: 'PostgreSQL connection URL: postgres://user:password@host:5432/dbname'
+
+  RedisUrl:
+    Type: String
+    NoEcho: true
+    Default: 'redis://localhost:6379/0'
+    Description: 'Redis URL (e.g. AWS ElastiCache primary endpoint)'
+
+  DjangoSecretKey:
+    Type: String
+    NoEcho: true
+    Default: 'skyjumpers-production-secret-key-change-me'
+    Description: 'Django Secret Key'
+
+Resources:
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /ecs/skyjumpers-backend
+      RetentionInDays: 14
+
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: skyjumpers-cluster
+
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow inbound HTTP traffic on port 8000
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8000
+          ToPort: 8000
+          CidrIp: 0.0.0.0/0
+
+  ExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: skyjumpers-ecsTaskExecutionRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: skyjumpers-backend
+      Cpu: '512'
+      Memory: '1024'
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !GetAtt ExecutionRole.Arn
+      ContainerDefinitions:
+        - Name: skyjumpers-api
+          Image: !Ref ImageUri
+          Essential: true
+          PortMappings:
+            - ContainerPort: 8000
+              Protocol: tcp
+          Environment:
+            - Name: DJANGO_ENV
+              Value: production
+            - Name: RUN_MIGRATIONS
+              Value: 'true'
+            - Name: DATABASE_URL
+              Value: !Ref DatabaseUrl
+            - Name: REDIS_URL
+              Value: !Ref RedisUrl
+            - Name: CELERY_BROKER_URL
+              Value: !Ref RedisUrl
+            - Name: DJANGO_SECRET_KEY
+              Value: !Ref DjangoSecretKey
+            - Name: DJANGO_ALLOWED_HOSTS
+              Value: '*'
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref LogGroup
+              awslogs-region: !Ref 'AWS::Region'
+              awslogs-stream-prefix: ecs
+
+  FargateService:
+    Type: AWS::ECS::Service
+    DependsOn: TaskDefinition
+    Properties:
+      ServiceName: skyjumpers-backend-service
+      Cluster: !Ref ECSCluster
+      LaunchType: FARGATE
+      DesiredCount: 1
+      TaskDefinition: !Ref TaskDefinition
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets: !Ref SubnetIds
+          SecurityGroups:
+            - !GetAtt SecurityGroup.GroupId
+
+Outputs:
+  ClusterName:
+    Description: ECS Cluster Name
+    Value: !Ref ECSCluster
+  ServiceName:
+    Description: ECS Service Name
+    Value: !GetAtt FargateService.Name
